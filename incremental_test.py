@@ -79,17 +79,17 @@ class Checkpoint:
         # arguments
         print("kwargs =", kwargs, end = "")
         print(")")
-        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, args[1:], 'args')
-        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, kwargs, 'kwargs')
-
+        # self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, args[1:], 'args')
+        # self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, kwargs, 'kwargs')
 
         data = self.func(*args, **kwargs)
         # breakpoint()
         print(data)
-        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, data, 'results')
-        print(data)
-            # return data
-        # return inner_func
+        # self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, data, 'results')
+        x = {'args': args[1:], 'kwargs' : kwargs, 'results' : data}
+        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, x, self.func.__name__)
+
+        return data
 
     def writeJsonToFile(self, assert_dir, log_dir, output_file, data, name):
         print('testdata: ' + str(data)) 
@@ -232,3 +232,6 @@ if __name__ == "__main__":
 
 # todo - multiple iterations of function - could just check at the end? 
 # todo - map 
+# autoformat the json
+# fix syntax - write all out at once
+# handle loops/every X times saving - write name reasonably
