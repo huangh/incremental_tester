@@ -10,6 +10,8 @@ import functools
 assert_dir = ''
 output_dir = ''
 # def compare_if_exists
+# https://www.codementor.io/@sheena/advanced-use-python-decorators-class-function-du107nxsv
+# https://realpython.com/primer-on-python-decorators/#decorating-classes
 
 def counter(func, arg1):
     print(arg1)
@@ -24,25 +26,6 @@ def counter(func, arg1):
     _counter.calls = 0
     return _counter
 
-# import functools
-
-# def decorator(func):
-#     @functools.wraps(func)
-#     def wrapper_decorator(*args, **kwargs):
-#         # Do something before
-#         value = func(*args, **kwargs)
-#         # Do something after
-#         return value
-#     return wrapper_decorator
-
-# def counter2(arg1):
-#     print(arg1)
-#     def _counter(f):
-#             def wrapper(self, *args, **kwargs):
-#             return f(self, *args, **kwargs)
-#         return wrapper
-#     return _counter
-
 # https://www.artima.com/weblogs/viewpost.jsp?thread=240845#decorator-functions-with-decorator-arguments
 
 class Checkpoint:
@@ -53,13 +36,13 @@ class Checkpoint:
         self.log_dir = ''
         self.output_file = ''
         self.func = f
-        print("Inside __init__()")
+        # print("Inside __init__()")
         print(self.assert_dir)
         print(self.log_dir)
         print(f)
 
     def __get__(self, instance, owner):
-        print("Inside __get__()")
+        # print("Inside __get__()")
 
         from functools import partial
         # breakpoint()
@@ -68,35 +51,22 @@ class Checkpoint:
     def __call__(self, *args, **kwargs):
 
         #@functools.wraps(func)
-        print("Inside __call__()")
+        # print("Inside __call__()")
         global assert_dir
         global output_dir
         self.assert_dir = assert_dir
         self.log_dir = output_dir
-        print(self.assert_dir)
-        print(self.log_dir)
-        print("Inside __call__2()")
-
+    
        # Getting the argument names of the
         # called function
-        # breakpoint()
         argnames = self.func.__code__.co_varnames[:self.func.__code__.co_argcount]
         
         # Getting the Function name of the
         # called function
         self.output_file = self.func.__name__ + ".json"
-
-        # def wrapped_f(*args):
-        #     print("Inside wrapped_f()")
-        #     print "Decorator arguments:", self.arg1, self.arg2, self.arg3
-        #     f(*args)
-        #     print "After f(*args)"
-        # return wrapped_f
-
-        # def inner_func(*args, **kwargs):
             
         print(self.output_file, "(", end = "")
-        argnames = 'boop'
+        # argnames = 'boop'
         # printing the function arguments
         print(', '.join( '% s = % r' % entry
             for entry in zip(argnames, args[:len(argnames)])), end = ", ")
@@ -136,41 +106,6 @@ class Checkpoint:
 
         return
     
-
-# def inout():
-#     def decorator(fun):
-#         print(message1)
-#         @function_details
-#         def wrapper(*args, **kwargs):
-#             return fun(*args, **kwargs)
-#         print(message2)
-#         return wrapper
-#     return decorator
-
-# def decodecorator(message1, message2):
-#     def decorator(fun):
-#         print(message1)
-#         @function_details
-#         def wrapper(*args, **kwargs):
-#             return fun(*args, **kwargs)
-#         print(message2)
-#         return wrapper
-#     return decorator
-#def decorator_factory(argument):
-#    def decorator(function):
-#        def wrapper(*args, **kwargs):
-#            funny_stuff()
-#            something_with_argument(argument)
-#            result = function(*args, **kwargs)
-#            more_funny_stuff()
-#            return result
-#        return wrapper
-#    return decorator
-    
-# if the checkpoint exists in 
-# def testCheckpoint(func):
-
-
 class Worker:
     def __init__(self, startPoint):
         # test recording arguments
@@ -190,7 +125,6 @@ class Worker:
         return self.classData
 
     @Checkpoint
-    # @decodecorator('zzzzzzzzzzzzzz', 'xxxxxxxxxxx')
     def step3_Arguments(self, offset):
        # breakpoint()
         print("Doing step 3")
@@ -201,7 +135,6 @@ class Worker:
     def incrementClassMember(self):
         self.classMember = self.classMember + 1
     
-    #@call_counter()
     @Checkpoint
     # todo - test this in a loop
     def step4_ClassMemberChange(self):
@@ -283,22 +216,10 @@ if __name__ == "__main__":
     worker = Worker(config['input_arg'])
     # do work
     a = worker.step1_DoWorkNoArgs()
-    # testCheckpoint(assert_dir, output_dir, 'step1_DoWorkNoArgs.json', a)
-    # print(json.dumps(a))
-
     b = worker.step2_doWorkNextStep()
-    # testCheckpoint(assert_dir, output_dir, 'step2_doWorkNextStep.json', b)
-
     c = worker.step3_Arguments(10)
-    # testCheckpoint(assert_dir, output_dir, 'step3_Arguments.json', c)    
-
     d = worker.step4_ClassMemberChange()
-    # testCheckpoint(assert_dir, output_dir, 'step4_ClassMemberChange.json', d)    
-
-    # 5 loops
+    # 5 loops - TODO
     e = worker.step5_LoopingClassMember(5)
 
-    # print(json.dumps(b))
-# functionize 
 # todo - multiple iterations of function - could just check at the end? 
-# make class
