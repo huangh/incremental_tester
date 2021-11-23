@@ -3,28 +3,31 @@ import sys
 from datetime import datetime
 import os
 from shutil import copy
-# from decorator
 import functools
 
-# globals
+# globals - is this a good idea? For now, don't see why I would need
+# more than 1 place to put my outputs. 
+# could choose to put this back into the checkpoint defintion
+# can do the thing where if checkpoint is called w/o args, it goes here
+# and if it is specified, then it goes there.
+# https://realpython.com/primer-on-python-decorators/#both-please-but-never-mind-the-bread
 assert_dir = ''
 output_dir = ''
 # def compare_if_exists
 # https://www.codementor.io/@sheena/advanced-use-python-decorators-class-function-du107nxsv
 # https://realpython.com/primer-on-python-decorators/#decorating-classes
 
-def counter(func, arg1):
-    print(arg1)
-    def _counter(f):
-       # breakpoint()
-        _counter.calls += 1
-        print("In deco: " + str(_counter.calls))
-        def wrapper(self, *args, **kwargs):
-            print("DECO " + getattr(self, func))
-            return f(self, *args, **kwargs)
-        return wrapper
-    _counter.calls = 0
-    return _counter
+
+class CountCalls:
+    def __init__(self, func):
+        functools.update_wrapper(self, func)
+        self.func = func
+        self.num_calls = 0
+
+    def __call__(self, *args, **kwargs):
+        self.num_calls += 1
+        print(f"Call {self.num_calls} of {self.func.__name__!r}")
+        return self.func(*args, **kwargs)
 
 # https://www.artima.com/weblogs/viewpost.jsp?thread=240845#decorator-functions-with-decorator-arguments
 
@@ -50,8 +53,6 @@ class Checkpoint:
         
     def __call__(self, *args, **kwargs):
 
-        #@functools.wraps(func)
-        # print("Inside __call__()")
         global assert_dir
         global output_dir
         self.assert_dir = assert_dir
@@ -73,20 +74,24 @@ class Checkpoint:
         
         # Printing the variable length Arguments
         print("args =", list(args[len(argnames):]), end = ", ")
-        
+        # breakpoint()
         # Printing the variable length keyword
         # arguments
         print("kwargs =", kwargs, end = "")
         print(")")
+        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, args[1:], 'args')
+        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, kwargs, 'kwargs')
+
+
         data = self.func(*args, **kwargs)
         # breakpoint()
         print(data)
-        self.testCheckpoint(self.assert_dir, self.log_dir, self.output_file, data)
+        self.writeJsonToFile(self.assert_dir, self.log_dir, self.output_file, data, 'results')
         print(data)
             # return data
         # return inner_func
 
-    def testCheckpoint(self, assert_dir, log_dir, output_file, data):
+    def writeJsonToFile(self, assert_dir, log_dir, output_file, data, name):
         print('testdata: ' + str(data)) 
         if assert_dir == '':
             print('nothing to compare against')
@@ -101,8 +106,8 @@ class Checkpoint:
                         assert comp_data == data , "ERROR: Checkpoint " + os.path.splitext(output_file)[0] + " not the same"
             except:
                 print('comparison file doesn''t exist. consider updating assert log')
-        with open(log_dir + '/' + output_file, 'w+') as f:
-            f.write(json.dumps(data))                   
+        with open(log_dir + '/' + output_file, 'a+') as f:
+            f.write(json.dumps({name: data}))                   
 
         return
     
@@ -117,7 +122,7 @@ class Worker:
         #test this as a class member that changes when another member function is called
         self.classMember = 1
 
-    @Checkpoint
+    # @Checkpoint
     def step2_doWorkNextStep(self):
         print("Doing step 2")
 
@@ -135,7 +140,7 @@ class Worker:
     def incrementClassMember(self):
         self.classMember = self.classMember + 1
     
-    @Checkpoint
+    # @Checkpoint
     # todo - test this in a loop
     def step4_ClassMemberChange(self):
        # breakpoint()
@@ -145,7 +150,7 @@ class Worker:
         self.classData = [i + self.classMember for i in self.classData]
         return self.classData
 
-    # @Checkpoint
+    # # @Checkpoint
     def step5_LoopingClassMember(self, count):
        # breakpoint()
         print("Doing step 5")
@@ -157,13 +162,16 @@ class Worker:
 
         return self.classData
 
-    @Checkpoint
+    # @Checkpoint
     def step1_DoWorkNoArgs(self):
         print("Doing step 1")
 
         for x in range(self.startPoint):
             self.classData.append(x)
         return self.classData
+
+
+
 
 def readconfig(configfile):
 
@@ -223,3 +231,4 @@ if __name__ == "__main__":
     e = worker.step5_LoopingClassMember(5)
 
 # todo - multiple iterations of function - could just check at the end? 
+# todo - map 
